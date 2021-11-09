@@ -11,4 +11,14 @@ articlesRouter.get('/', async (request, response) => {
   }
 })
 
+articlesRouter.get('/:id', async (request, response) => {
+  const id = request.params.id
+  try {
+    const article = await Article.findById(id)
+    return response.json(article)
+  } catch (e) {
+    return response.status(500).json({ error: 'Article not found' })
+  }
+})
+
 module.exports = articlesRouter
