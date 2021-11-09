@@ -11,9 +11,19 @@ const articleSchema = new mongoose.Schema({
     required: true,
     minLength: 2
   },
-  // author: {
-
-  // }
+  author: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  tags: [
+    {
+      type: String
+    }
+  ],
+  date: {
+    type: Date,
+    default: Date.now
+  }
 })
 
 articleSchema.set('toJSON', {

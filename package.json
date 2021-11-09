@@ -7,7 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "cross-env NODE_ENV=production node index.js",
     "dev": "cross-env NODE_ENV=development nodemon index.js",
-    "db-seed": "cross-env NODE_ENV=development node ./database/seeders/mongoSeeder.js"
+    "test-seed": "cross-env NODE_ENV=development node ./database/scripts/mongoSeeder.js",
+    "DANGEROUS_db-seed": "cross-env NODE_ENV=development node ./database/scripts/mongoSeeder.js",
+    "DANGEROUS_db-drop": "cross-env NODE_ENV=development node ./database/scripts/drop.js"
   },
   "author": "",
   "license": "ISC",
