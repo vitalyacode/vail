@@ -2,11 +2,12 @@ const mongoose = require('mongoose')
 const faker = require('faker')
 const config = require('../../utils/config')
 const logger = require('../../utils/logger')
+const bcrypt = require('bcrypt')
 const Article = require('../models/article')
 const User = require('../models/user')
 
 const random = (min, max) => {
-  return Math.floor(Math.random() * (max - min + 1) + min)
+  return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
 const getTags = (tags) => {
@@ -31,7 +32,7 @@ const seeder = async () => {
     articleTags.push(faker.lorem.word(random(3, 8)))
   }
   let articlesToInsert = []
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 12; i++) {
     articleAuthors.push(new mongoose.Types.ObjectId())
   }
   for (let i = 0; i < 100; i++) {
@@ -45,12 +46,27 @@ const seeder = async () => {
   }
 
   let authorsToInsert = []
-  articleAuthors.forEach(a => {
+  for (let i = 0; i < articleAuthors.length - 1; i++) {
+    const password = faker.lorem.word(random(4, 10))
+    const passwordHash = bcrypt.hashSync(password, 10)
     const objToAdd = {
-      username: faker.name.findName()
+      username: faker.name.findName(),
+      passwordHash
     }
-    authorsToInsert.push({ ...objToAdd, _id: a })
-  })
+    authorsToInsert.push({ ...objToAdd, _id: articleAuthors[i] })
+  }
+  const adminHash = bcrypt.hashSync('admin', 10)
+  const defaultUserHash = bcrypt.hashSync('defaultUser', 10)
+  const admin = {
+    username: 'admin',
+    passwordHash: adminHash
+  }
+  const defaultUser = {
+    username: 'defaultUser',
+    passwordHash: defaultUserHash
+  }
+  authorsToInsert.push(admin)
+  authorsToInsert.push(defaultUser)
 
 
   await Promise.all([

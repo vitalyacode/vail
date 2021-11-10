@@ -9,6 +9,7 @@
     "dev": "cross-env NODE_ENV=development nodemon index.js",
     "start-production": "cross-env NODE_ENV=production nodemon index.js",
     "test-seed": "cross-env NODE_ENV=development node ./database/scripts/mongoSeeder.js",
+    "test-drop": "cross-env NODE_ENV=development node ./database/scripts/drop.js",
     "DANGEROUS_db-seed": "cross-env NODE_ENV=production node ./database/scripts/mongoSeeder.js",
     "DANGEROUS_db-drop": "cross-env NODE_ENV=production node ./database/scripts/drop.js"
   },
@@ -24,6 +25,7 @@
     "nodemon": "^2.0.14"
   },
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
