@@ -14,7 +14,8 @@ const getTags = (tags) => {
   let tagCount = random(1, 4)
   let tagsToReturn = []
   for (let i = 0; i < tagCount; i++) {
-    tagsToReturn.push(tags[random(0, tags.length)])
+    let rand = random(0, tags.length - 1)
+    tagsToReturn.push(tags[rand])
   }
   return tagsToReturn
 }
@@ -32,14 +33,14 @@ const seeder = async () => {
     articleTags.push(faker.lorem.word(random(3, 8)))
   }
   let articlesToInsert = []
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < 12; i++) {//fills with authors' ids
     articleAuthors.push(new mongoose.Types.ObjectId())
   }
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 120; i++) {//creates articles
     const objToAdd = {
       title: faker.lorem.words(random(2, 6)),
       content: `<p>${faker.lorem.paragraphs()}</p>`,
-      author: articleAuthors[random(0, articleAuthors.length)],
+      author: articleAuthors[random(0, articleAuthors.length - 3)],//-3 cuz 2 custom users
       tags: getTags(articleTags)
     }
     articlesToInsert.push(new Article({ ...objToAdd }))
@@ -49,9 +50,14 @@ const seeder = async () => {
   for (let i = 0; i < articleAuthors.length - 1; i++) {
     const password = faker.lorem.word(random(4, 10))
     const passwordHash = bcrypt.hashSync(password, 10)
+    let articles = []
+    for (let j = 0; j < 10; j++) {//fills users with articles
+      articles.push(articlesToInsert[i * 10 + j])
+    }
     const objToAdd = {
       username: faker.name.findName(),
-      passwordHash
+      passwordHash,
+      articles
     }
     authorsToInsert.push({ ...objToAdd, _id: articleAuthors[i] })
   }

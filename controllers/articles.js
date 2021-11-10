@@ -1,11 +1,12 @@
 const articlesRouter = require('express').Router()
+const { userExtractor } = require('../utils/middleware')
 const Article = require('../database/models/article')
-require('../database/models/user') //change when User is needed
+const User = require('../database/models/user')
+const jwt = require('jsonwebtoken')
 
 articlesRouter.get('/', async (request, response) => {
   try {
     const articles = await Article.find({}).populate('author', { username: 1 })
-    console.log(articles)
     return response.json(articles)
   } catch (e) {
     return response.status(500).json({ error: 'Database unresponding' })
@@ -22,10 +23,40 @@ articlesRouter.get('/:id', async (request, response) => {
   }
 })
 
-articlesRouter.post('/', async (request, response) => {
+articlesRouter.post('/', userExtractor, async (request, response) => {
   const body = request.body
+  const user = request.user
+  //change this when new properties of articles appear!!!
+  if (!(body.title && body.content)) {
+    //server-side article validation in addition to mongodb validation
+    return response.status(400).json({ error: 'Title or content not provided' })
+  }
 
-  return response.json(body)
+  const userWhoAdds = (await User.findById(user.id)).toObject()
+  if (!userWhoAdds) {
+    return response.status(500).json({ error: 'User from token not found' })
+  }
+  const articleToAdd = {
+    title: body.title,
+    content: body.content,
+    author: userWhoAdds._id,
+    tags: body.tags
+  }
+  let savedArticle
+  try {
+    savedArticle = await new Article({ ...articleToAdd }).save()
+  } catch (e) {
+    return response.status(500).json({ error: 'User from token not found' })
+  }
+
+  try {
+    await User.findByIdAndUpdate(userWhoAdds._id,
+      { ...userWhoAdds, articles: userWhoAdds.articles.concat(savedArticle._id) })
+  } catch (e) {
+    return response.status(500).json({ error: 'User update while creating article unsuccessfull' })
+  }
+
+  return response.json(savedArticle)
 })
 
 module.exports = articlesRouter

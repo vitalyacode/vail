@@ -9,7 +9,11 @@ const userSchema = new mongoose.Schema({
   passwordHash: {
     type: String,
     //required: true
-  }
+  },
+  articles: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Article'
+  }]
 })
 
 userSchema.set('toJSON', {
