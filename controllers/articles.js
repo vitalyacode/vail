@@ -32,7 +32,13 @@ articlesRouter.post('/', userExtractor, async (request, response) => {
     return response.status(400).json({ error: 'Title or content not provided' })
   }
 
-  const userWhoAdds = (await User.findById(user.id)).toObject()
+  let userWhoAdds
+  try {
+    userWhoAdds = (await User.findById(user.id)).toObject()
+  } catch (e) {
+    response.status(500).json({ error: 'Provided user is not found' })
+  }
+
   if (!userWhoAdds) {
     return response.status(500).json({ error: 'User from token not found' })
   }
