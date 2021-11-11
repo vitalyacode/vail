@@ -31,6 +31,14 @@ const userExtractor = (request, response, next) => {
   next()
 }
 
+const likedByCleaner = (request, response, next) => {
+  console.log(response.send)
+  if (response.body) console.log(response.body)
+  //response.body.modified = 'aoa'
+
+  next()
+}
+
 const errorHandler = (error, request, response, next) => {
   logger.error(error.message)
 
@@ -52,5 +60,6 @@ module.exports = {
   unknownEndpoint,
   errorHandler,
   tokenExtractor,
-  userExtractor
+  userExtractor,
+  likedByCleaner
 }

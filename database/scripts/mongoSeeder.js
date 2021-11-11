@@ -5,10 +5,7 @@ const logger = require('../../utils/logger')
 const bcrypt = require('bcrypt')
 const Article = require('../models/article')
 const User = require('../models/user')
-
-const random = (min, max) => {
-  return Math.floor(Math.random() * (max - min + 1)) + min
-}
+const { random } = require('../../utils/helper')
 
 const getTags = (tags) => {
   let tagCount = random(1, 4)
@@ -57,7 +54,8 @@ const seeder = async () => {
     const objToAdd = {
       username: faker.name.findName(),
       passwordHash,
-      articles
+      articles,
+      likedArticles: []
     }
     authorsToInsert.push({ ...objToAdd, _id: articleAuthors[i] })
   }

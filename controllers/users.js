@@ -7,6 +7,14 @@ usersRouter.get('/', async (request, response) => {
 
   return response.json(users)
 })
+usersRouter.get('/:id', async (request, response) => {
+  try {
+    const user = await User.findById(request.params.id)
+    return response.status(200).json(user)
+  } catch (e) {
+    return response.status(500).json({ error: 'User not found' })
+  }
+})
 
 usersRouter.post('/signup', async (request, response) => {
   const user = request.body
