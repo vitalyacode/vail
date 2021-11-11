@@ -79,10 +79,14 @@ articlesRouter.put('/:id/like', userExtractor, async (request, response) => {
   let articleToUpdate
   try {
     articleToUpdate = await Article.findById(request.params.id)
+    if (!articleToUpdate) return response.status(404).json({ error: 'Article not found' })
   } catch (e) {
     return response.status(500).json({ error: 'Article to like not found' })
   }
+
   const type = request.body.type
+  const userWhoLikesObj = userWhoLikes.toObject()
+
   if (type === 'addLike') {
     if (articleToUpdate.likedBy.includes(userWhoLikes._id)) {//both ids must be ObjectId
       return response.status(500).json({ error: 'User already liked this article' })
@@ -93,7 +97,7 @@ articlesRouter.put('/:id/like', userExtractor, async (request, response) => {
       likedBy: articleToUpdate.likedBy.concat(userWhoLikes._id)
     }
     try {
-      await User.findByIdAndUpdate(userWhoLikes._id, { ...userWhoLikes, likedArticles: userWhoLikes.likedArticles.concat(likedArticle._id) })
+      await User.findByIdAndUpdate(userWhoLikesObj._id, { ...userWhoLikesObj, likedArticles: userWhoLikesObj.likedArticles.concat(likedArticle._id || likedArticle.id) }, { new: true })
       const savedArticle = await Article.findByIdAndUpdate(likedArticle._id, { ...likedArticle }, { new: true, likedBy: 0 })
       return response.status(200).json(savedArticle)
     } catch (e) {
@@ -109,7 +113,7 @@ articlesRouter.put('/:id/like', userExtractor, async (request, response) => {
       likedBy: articleToUpdate.likedBy.filter(e => e.toString() !== userWhoLikes._id.toString())
     }
     try {
-      await User.findByIdAndUpdate(userWhoLikes._id, { ...userWhoLikes, likedArticles: userWhoLikes.likedArticles.filter(e => e._id !== likedArticle._id) })
+      await User.findByIdAndUpdate(userWhoLikesObj._id, { ...userWhoLikesObj, likedArticles: userWhoLikesObj.likedArticles.filter(e => e._id.toString() !== (likedArticle._id || likedArticle.id).toString()) }, { new: true })
       const savedArticle = await Article.findByIdAndUpdate(likedArticle._id, { ...likedArticle }, { new: true, likedBy: 0 })
       return response.status(200).json(savedArticle)
     } catch (e) {

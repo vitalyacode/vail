@@ -1,6 +1,7 @@
 const usersRouter = require('express').Router()
 const User = require('../database/models/user')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 usersRouter.get('/', async (request, response) => {
   const users = await User.find({})
@@ -26,6 +27,7 @@ usersRouter.post('/signup', async (request, response) => {
   const saltRounds = 10
   const passwordHash = await bcrypt.hash(user.password, saltRounds)
 
+  //creating token on registration, might delete later, unsafe?
   const userToAdd = {
     passwordHash,
     username: user.username
@@ -34,7 +36,12 @@ usersRouter.post('/signup', async (request, response) => {
   const newUser = new User({ ...userToAdd })
   try {
     const savedUser = await newUser.save()
-    return response.status(200).json(savedUser.toObject())
+    const userForToken = {
+      username: savedUser.username,
+      id: savedUser.id
+    }
+    const token = jwt.sign(userForToken, process.env.SECRET, { noTimestamp: true })
+    return response.status(200).json({ user: savedUser.toObject(), token })
   } catch (e) {
     return response.status(500).json({ error: 'User creation failed' })
   }
