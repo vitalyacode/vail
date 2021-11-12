@@ -1,35 +1,31 @@
 const mongoose = require('mongoose')
 
-const userSchema = new mongoose.Schema({
-  username: {
+const commentSchema = new mongoose.Schema({
+  content: {
     type: String,
     required: true,
     minLength: 2
   },
-  passwordHash: {
-    type: String,
-    //required: true
+  author: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   },
-  articles: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Article'
-  }],
-  likedArticles: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Article'
-  }],
   created: {
     type: Date,
     default: Date.now,
     immutable: true
   },
-  comments: [{
+  likes: {
+    type: Number,
+    default: 0
+  },
+  likedBy: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Comment'
+    ref: 'User',
   }]
 })
 
-userSchema.set('toJSON', {
+commentSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString()
     delete returnedObject._id
@@ -37,6 +33,6 @@ userSchema.set('toJSON', {
   }
 })
 
-const User = mongoose.model('User', userSchema)
+const Comment = mongoose.model('Comment', commentSchema)
 
-module.exports = User
+module.exports = Comment

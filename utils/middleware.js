@@ -39,6 +39,14 @@ const likedByCleaner = (request, response, next) => {
   next()
 }
 
+const commentKeyChecker = (request, response, next) => {
+  if (request.body.key !== process.env.COMMENTS_KEY) {
+    return response.status(403).json({ error: 'You do not have The Key. Your presence here is forbidden' })
+  }
+
+  next()
+}
+
 const errorHandler = (error, request, response, next) => {
   logger.error(error.message)
 
@@ -61,5 +69,6 @@ module.exports = {
   errorHandler,
   tokenExtractor,
   userExtractor,
-  likedByCleaner
+  likedByCleaner,
+  commentKeyChecker
 }

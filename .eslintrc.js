@@ -26,5 +26,10 @@ module.exports = {
       'error',
     ],
     'no-console': 0,
+    'object-curly-newline': [
+      {
+        "multiline": true
+      }
+    ]
   }
 }

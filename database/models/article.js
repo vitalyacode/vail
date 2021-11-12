@@ -20,9 +20,10 @@ const articleSchema = new mongoose.Schema({
       type: String
     }
   ],
-  date: {
+  created: {
     type: Date,
-    default: Date.now
+    default: Date.now,
+    immutable: true
   },
   likes: {
     type: Number,
@@ -31,6 +32,10 @@ const articleSchema = new mongoose.Schema({
   likedBy: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
+  }],
+  comments: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Comment',
   }]
 })
 

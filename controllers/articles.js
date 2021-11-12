@@ -2,6 +2,8 @@ const articlesRouter = require('express').Router()
 const { userExtractor } = require('../utils/middleware')
 const Article = require('../database/models/article')
 const User = require('../database/models/user')
+const Comment = require('../database/models/comment')
+const { listenerCount } = require('../database/models/user')
 //const { random } = require('../utils/helper')
 //const jwt = require('jsonwebtoken')
 
@@ -124,6 +126,54 @@ articlesRouter.put('/:id/like', userExtractor, async (request, response) => {
     return response.status(400).json({ error: 'Incorrect type' })
   }
 
+})
+
+articlesRouter.post('/:id/comment', userExtractor, async (request, response) => {
+  const body = request.body
+  if (!request.params.id) return response.status(500).json({ error: 'Id of article not provided' })
+  const userFromToken = request.user//used only to find User from database
+  if (!userFromToken) return response.status(401).json({ error: 'Bad token provided' })
+  if (!body.content) return response.status(400).json({ error: 'No content provided' })
+
+  //toObject should be used when mongoose object is gonna be spreaded ...
+  let userWhoComments, articleToComment
+  try {
+    await Promise.all([
+      User.findById(userFromToken.id),
+      Article.findById(request.params.id)
+    ]).then(([user, article]) => {
+      userWhoComments = user.toObject()
+      articleToComment = article.toObject()
+    })
+    if (!userWhoComments) response.status(404).json({ error: 'User from token not found' })
+    if (!articleToComment) return response.status(404).json({ error: 'Article not found' })
+  } catch (e) {
+    return response.status(500).json({ error: 'User or article not found' })
+  }
+  const commentToSave = {
+    content: body.content
+  }
+  let comment
+  try {
+    comment = await new Comment({ ...commentToSave }).save()
+  } catch (e) {
+    return response.json({ error: 'Comment cannot be saved' })
+  }
+
+  const commentedArticle = {
+    ...articleToComment,
+    comments: articleToComment.comments.concat(comment._id)
+  }
+  const updatedUser = {
+    ...userWhoComments,
+    comments: userWhoComments.comments.concat(commentedArticle._id)
+  }
+  await Promise.all([
+    User.findByIdAndUpdate(updatedUser._id, { ...updatedUser }),
+    Article.findByIdAndUpdate(commentedArticle._id, { ...commentedArticle }, { new: true })
+  ]).then(([user, article]) => {
+    return response.status(200).json(article)
+  })
 })
 
 module.exports = articlesRouter

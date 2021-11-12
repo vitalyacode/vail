@@ -5,6 +5,7 @@ const logger = require('../../utils/logger')
 const bcrypt = require('bcrypt')
 const Article = require('../models/article')
 const User = require('../models/user')
+const Comment = require('../models/comment')
 const { random } = require('../../utils/helper')
 
 const getTags = (tags) => {
@@ -20,7 +21,8 @@ const getTags = (tags) => {
 const seeder = async () => {
   await Promise.all([
     Article.deleteMany({}),
-    User.deleteMany({})
+    User.deleteMany({}),
+    Comment.deleteMany({})
   ])
 
   let articleAuthors = []
@@ -63,7 +65,8 @@ const seeder = async () => {
   const defaultUserHash = bcrypt.hashSync('defaultUser', 10)
   const admin = {
     username: 'admin',
-    passwordHash: adminHash
+    passwordHash: adminHash,
+    role: 'admin'
   }
   const defaultUser = {
     username: 'defaultUser',
