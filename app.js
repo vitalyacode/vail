@@ -17,7 +17,7 @@ app.use(middleware.tokenExtractor)
 app.use('/api/articles', articlesRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
-app.use('/api/comments', middleware.commentKeyChecker, commentsRouter)
+app.use('/api/comments', commentsRouter)
 
 
 app.use(middleware.unknownEndpoint)

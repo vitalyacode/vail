@@ -3,7 +3,6 @@ const { userExtractor } = require('../utils/middleware')
 const Article = require('../database/models/article')
 const User = require('../database/models/user')
 const Comment = require('../database/models/comment')
-const { listenerCount } = require('../database/models/user')
 //const { random } = require('../utils/helper')
 //const jwt = require('jsonwebtoken')
 
@@ -20,7 +19,8 @@ articlesRouter.get('/:id', async (request, response) => {
   const id = request.params.id
   try {
     const article = await Article.findById(id, { likedBy: 0 })
-    return response.json(article)
+    if (!article) return response.status(500).json({ error: 'Article not found' })
+    return response.status(200).json(article)
   } catch (e) {
     return response.status(500).json({ error: 'Article not found' })
   }
@@ -155,7 +155,7 @@ articlesRouter.post('/:id/comment', userExtractor, async (request, response) => 
   }
   let comment
   try {
-    comment = await new Comment({ ...commentToSave }).save()
+    comment = await new Comment({ ...commentToSave }).save()//saves comment
   } catch (e) {
     return response.json({ error: 'Comment cannot be saved' })
   }
@@ -169,9 +169,9 @@ articlesRouter.post('/:id/comment', userExtractor, async (request, response) => 
     comments: userWhoComments.comments.concat(commentedArticle._id)
   }
   await Promise.all([
+    Article.findByIdAndUpdate(commentedArticle._id, { ...commentedArticle }, { new: true }),
     User.findByIdAndUpdate(updatedUser._id, { ...updatedUser }),
-    Article.findByIdAndUpdate(commentedArticle._id, { ...commentedArticle }, { new: true })
-  ]).then(([user, article]) => {
+  ]).then(([article]) => {
     return response.status(200).json(article)
   })
 })

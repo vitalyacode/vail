@@ -4,9 +4,13 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
 usersRouter.get('/', async (request, response) => {
-  const users = await User.find({})
+  try {
+    const users = await User.find({})
+    return response.json(users)
+  } catch (e) {
+    response.status(500).json({ error: 'Database error' })
+  }
 
-  return response.json(users)
 })
 usersRouter.get('/:id', async (request, response) => {
   try {

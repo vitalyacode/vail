@@ -41,7 +41,7 @@ const likedByCleaner = (request, response, next) => {
 
 const commentKeyChecker = (request, response, next) => {
   if (request.body.key !== process.env.COMMENTS_KEY) {
-    return response.status(403).json({ error: 'You do not have The Key. Your presence here is forbidden' })
+    return response.status(403).json({ error: 'You do not have The Key. You don\'t belong here' })
   }
 
   next()
