@@ -6,6 +6,7 @@ const articlesRouter = require('./controllers/articles')
 const usersRouter = require('./controllers/users')
 const loginRouter = require('./controllers/login')
 const commentsRouter = require('./controllers/comments')
+const authRouter = require('./controllers/auth')
 
 const app = express()
 
@@ -18,6 +19,7 @@ app.use('/api/articles', articlesRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
 app.use('/api/comments', commentsRouter)
+app.use('/api/auth', authRouter)
 
 
 app.use(middleware.unknownEndpoint)
